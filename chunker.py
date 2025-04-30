@@ -155,16 +155,19 @@ def create_chunks_from_markdown(markdown_text, url=None, target_token_count=400,
             position = markdown_text.find(current_chunk[:50])  # Find approx. position
             section_context = get_current_section_context(position, headers)
             
-            # Create context prefix
-            context_prefix = f"Document: {document_title}\n"
-            context_prefix += f"Source: {domain}\n"
+            # Create context section
+            context = f"Context:\n"
+            context += f"Document: {document_title}\n"
+            context += f"Source: {domain}\n"
             if section_context:
-                context_prefix += f"Section: {' > '.join(section_context)}\n"
-            context_prefix += "\n"
+                context += f"Section: {' > '.join(section_context)}\n"
+            
+            # Create content section with an empty line between context and content
+            formatted_text = f"{context}\nContent:\n{current_chunk}"
             
             # Add chunk to our list
             chunks.append({
-                "text": context_prefix + current_chunk,
+                "text": formatted_text,
                 "metadata": {
                     "document": document_title,
                     "source": domain,
@@ -204,16 +207,19 @@ def create_chunks_from_markdown(markdown_text, url=None, target_token_count=400,
         position = markdown_text.find(current_chunk[:50])  # Find approx. position
         section_context = get_current_section_context(position, headers)
         
-        # Create context prefix
-        context_prefix = f"Document: {document_title}\n"
-        context_prefix += f"Source: {domain}\n"
+        # Create context section
+        context = f"Context:\n"
+        context += f"Document: {document_title}\n"
+        context += f"Source: {domain}\n"
         if section_context:
-            context_prefix += f"Section: {' > '.join(section_context)}\n"
-        context_prefix += "\n"
+            context += f"Section: {' > '.join(section_context)}\n"
+        
+        # Create content section with an empty line between context and content
+        formatted_text = f"{context}\nContent:\n{current_chunk}"
         
         # Add chunk to our list
         chunks.append({
-            "text": context_prefix + current_chunk,
+            "text": formatted_text,
             "metadata": {
                 "document": document_title,
                 "source": domain,

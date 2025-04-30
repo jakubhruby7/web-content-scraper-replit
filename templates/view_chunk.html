@@ -52,7 +52,28 @@
                     <!-- Rendered markdown content -->
                     <div class="tab-pane fade show active" id="rendered" role="tabpanel" aria-labelledby="rendered-tab">
                         <div class="markdown-content p-3 border rounded">
-                            {{ html_content }}
+                            {% if "Context:" in content and "Content:" in content %}
+                                <div class="card mb-3">
+                                    <div class="card-header bg-secondary text-white">
+                                        <strong>Context</strong>
+                                    </div>
+                                    <div class="card-body bg-light">
+                                        {% set context_part = content.split('Content:')[0].replace('Context:', '', 1) %}
+                                        {{ Markup(markdown.markdown(context_part, extensions=['tables', 'nl2br'])) }}
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white">
+                                        <strong>Content</strong>
+                                    </div>
+                                    <div class="card-body">
+                                        {% set content_part = content.split('Content:')[1] %}
+                                        {{ Markup(markdown.markdown(content_part, extensions=['tables', 'nl2br'])) }}
+                                    </div>
+                                </div>
+                            {% else %}
+                                {{ html_content }}
+                            {% endif %}
                         </div>
                     </div>
                     
