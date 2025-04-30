@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Embedding Chunks{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-3">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                <li class="breadcrumb-item active">AI Embedding Chunks</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-puzzle-piece me-2"></i>AI Embedding Chunks
+                </h5>
+                <span class="badge bg-primary">{{ chunk_sets|length }} sets</span>
+            </div>
+            <div class="card-body">
+                {% if chunk_sets %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Source File</th>
+                                    <th>Chunks</th>
+                                    <th>Total Tokens</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for chunk_set in chunk_sets %}
+                                <tr>
+                                    <td>{{ chunk_set.source_file }}</td>
+                                    <td>{{ chunk_set.num_chunks }} chunks</td>
+                                    <td>~{{ chunk_set.estimated_tokens }} tokens</td>
+                                    <td>{{ chunk_set.created }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ url_for('view_chunks', filename=chunk_set.source_file) }}" class="btn btn-info">
+                                                <i class="fas fa-eye"></i> View Chunks
+                                            </a>
+                                            <a href="{{ url_for('view_file', filename=chunk_set.source_file) }}" class="btn btn-secondary">
+                                                <i class="fas fa-file-alt"></i> View Source
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> No AI chunks have been created yet. View a file and click "Create AI Chunks" to generate chunks.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>About AI Embedding Chunks</h5>
+            </div>
+            <div class="card-body">
+                <p>AI embedding chunks are optimized text segments designed to be used with AI models for search, retrieval, and analysis.</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Why use chunks?</h6>
+                        <ul>
+                            <li>Improves relevance in search and retrieval</li>
+                            <li>Allows for more precise answers from AI models</li>
+                            <li>Optimizes token usage with AI models</li>
+                            <li>Preserves context while focusing on specific content</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>How to use these chunks</h6>
+                        <ul>
+                            <li>Each chunk has a unique ID and context information</li>
+                            <li>Use chunks with vector databases (e.g., Pinecone, Weaviate)</li>
+                            <li>Use with RAG (Retrieval Augmented Generation) systems</li>
+                            <li>Download individual chunks or full sets for your AI workflows</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

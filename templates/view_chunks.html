@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}View Chunks - {{ filename }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-3">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('list_chunks') }}">AI Chunks</a></li>
+                <li class="breadcrumb-item active">{{ filename }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-puzzle-piece me-2"></i>AI Chunks for {{ filename }}
+                </h5>
+                <div>
+                    <a href="{{ url_for('view_file', filename=filename) }}" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-file-alt me-1"></i> View Source File
+                    </a>
+                    <a href="{{ url_for('create_chunks_route', filename=filename) }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-sync me-1"></i> Regenerate Chunks
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <div>
+                        <p class="mb-1"><strong>Created:</strong> {{ chunks_data.created }}</p>
+                        <p class="mb-1"><strong>Total Chunks:</strong> {{ chunks_data.num_chunks }}</p>
+                        <p class="mb-0"><strong>Estimated Tokens:</strong> ~{{ chunks_data.estimated_tokens }}</p>
+                    </div>
+                </div>
+                
+                <div class="accordion" id="chunksAccordion">
+                    {% for chunk in chunks_data.chunks %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ loop.index }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#collapse{{ loop.index }}" aria-expanded="false" 
+                                    aria-controls="collapse{{ loop.index }}">
+                                <strong>Chunk {{ loop.index }}</strong> - {{ chunk.filename }}
+                            </button>
+                        </h2>
+                        <div id="collapse{{ loop.index }}" class="accordion-collapse collapse" 
+                             aria-labelledby="heading{{ loop.index }}" data-bs-parent="#chunksAccordion">
+                            <div class="accordion-body">
+                                <div class="mb-2 d-flex justify-content-end">
+                                    <a href="{{ url_for('view_chunk', chunk_filename=chunk.filename) }}" class="btn btn-sm btn-info me-2">
+                                        <i class="fas fa-eye me-1"></i> View Full Chunk
+                                    </a>
+                                    <a href="{{ url_for('download_chunk', chunk_filename=chunk.filename) }}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-download me-1"></i> Download
+                                    </a>
+                                </div>
+                                <div class="chunk-preview p-3 border rounded bg-light">
+                                    <pre class="mb-0" style="white-space: pre-wrap; max-height: 300px; overflow-y: auto;">{{ chunk.content }}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-code me-2"></i>Integration Examples</h5>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="codeExampleTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="python-tab" data-bs-toggle="tab" data-bs-target="#python" 
+                                type="button" role="tab" aria-controls="python" aria-selected="true">
+                            Python with LangChain
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="js-tab" data-bs-toggle="tab" data-bs-target="#js" 
+                                type="button" role="tab" aria-controls="js" aria-selected="false">
+                            JavaScript
+                        </button>
+                    </li>
+                </ul>
+                <div class="tab-content p-3 border border-top-0 rounded-bottom" id="codeExampleTabsContent">
+                    <div class="tab-pane fade show active" id="python" role="tabpanel" aria-labelledby="python-tab">
+<pre class="bg-dark text-light p-3 rounded"><code>from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.vectorstores import Chroma
+from langchain.embeddings import OpenAIEmbeddings
+import os
+
+# Load your chunks
+chunks = []
+chunk_dir = "downloaded_chunks"
+for filename in os.listdir(chunk_dir):
+    if filename.startswith("{{ base_filename }}") and filename.endswith(".txt"):
+        with open(os.path.join(chunk_dir, filename), "r") as f:
+            chunks.append(f.read())
+
+# Create embeddings (requires OpenAI API key)
+embeddings = OpenAIEmbeddings()
+vectorstore = Chroma.from_texts(chunks, embeddings)
+
+# Search for relevant chunks
+results = vectorstore.similarity_search("your query here", k=3)
+for result in results:
+    print(result.page_content)
+</code></pre>
+                    </div>
+                    <div class="tab-pane fade" id="js" role="tabpanel" aria-labelledby="js-tab">
+<pre class="bg-dark text-light p-3 rounded"><code>import { OpenAIEmbeddings } from "langchain/embeddings/openai";
+import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import fs from "fs";
+import path from "path";
+
+// Load your chunks
+const chunkDir = "downloaded_chunks";
+const chunks = [];
+const files = fs.readdirSync(chunkDir);
+
+for (const file of files) {
+  if (file.startsWith("{{ base_filename }}") && file.endsWith(".txt")) {
+    const content = fs.readFileSync(path.join(chunkDir, file), "utf8");
+    chunks.push(content);
+  }
+}
+
+// Create embeddings (requires OpenAI API key)
+const embeddings = new OpenAIEmbeddings();
+const vectorStore = await MemoryVectorStore.fromTexts(chunks, {}, embeddings);
+
+// Search for relevant chunks
+const results = await vectorStore.similaritySearch("your query here", 3);
+console.log(results);
+</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

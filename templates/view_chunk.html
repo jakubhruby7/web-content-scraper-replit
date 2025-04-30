@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}View Chunk - {{ chunk_filename }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-3">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('list_chunks') }}">AI Chunks</a></li>
+                <li class="breadcrumb-item active">{{ chunk_filename }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-puzzle-piece me-2"></i>{{ chunk_filename }}
+                </h5>
+                <div>
+                    <a href="{{ url_for('download_chunk', chunk_filename=chunk_filename) }}" class="btn btn-sm btn-success">
+                        <i class="fas fa-download me-1"></i> Download
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Tabs for different view formats -->
+                <ul class="nav nav-tabs mb-3" id="contentTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="rendered-tab" data-bs-toggle="tab" 
+                                data-bs-target="#rendered" type="button" role="tab" 
+                                aria-controls="rendered" aria-selected="true">
+                            Rendered Markdown
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="raw-tab" data-bs-toggle="tab" 
+                                data-bs-target="#raw" type="button" role="tab" 
+                                aria-controls="raw" aria-selected="false">
+                            Raw Content
+                        </button>
+                    </li>
+                </ul>
+                
+                <!-- Tab content -->
+                <div class="tab-content" id="contentTabsContent">
+                    <!-- Rendered markdown content -->
+                    <div class="tab-pane fade show active" id="rendered" role="tabpanel" aria-labelledby="rendered-tab">
+                        <div class="markdown-content p-3 border rounded">
+                            {{ html_content }}
+                        </div>
+                    </div>
+                    
+                    <!-- Raw content -->
+                    <div class="tab-pane fade" id="raw" role="tabpanel" aria-labelledby="raw-tab">
+                        <div class="file-content p-3 bg-dark border rounded" style="white-space: pre-wrap;">{{ content }}</div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h6>About This Chunk</h6>
+                    <p>This chunk is part of a document that has been split into smaller pieces optimized for AI embeddings and retrieval. Each chunk:</p>
+                    <ul>
+                        <li>Contains a context header with source and section information</li>
+                        <li>Is sized appropriately for embedding models (typically 250-500 tokens)</li>
+                        <li>May overlap with adjacent chunks to maintain context continuity</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Create AI Chunks - {{ filename }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-3">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('view_file', filename=filename) }}">{{ filename }}</a></li>
+                <li class="breadcrumb-item active">Create AI Chunks</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-puzzle-piece me-2"></i>Create AI Embedding Chunks
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-4">
+                    <h5 class="alert-heading">About AI Chunks</h5>
+                    <p>AI Embedding chunks are smaller pieces of your document optimized for use with AI models. These chunks:</p>
+                    <ul>
+                        <li>Preserve the semantic meaning of your content</li>
+                        <li>Include context headers to maintain document structure</li>
+                        <li>Are sized appropriately for embedding models (typically 250-500 tokens)</li>
+                        <li>Can have overlap to maintain context between chunks</li>
+                    </ul>
+                </div>
+                
+                <form action="{{ url_for('create_chunks_route', filename=filename) }}" method="POST">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="token_count" class="form-label">Target Token Count per Chunk</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="token_count" name="token_count" 
+                                       value="{{ default_token_count }}" min="100" max="1000">
+                                <span class="input-group-text">tokens</span>
+                            </div>
+                            <div class="form-text text-muted">
+                                Recommended: 250-500 tokens per chunk. Smaller chunks are more precise but may lose context.
+                                Larger chunks preserve more context but may be less relevant for specific queries.
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="overlap" class="form-label">Chunk Overlap Percentage</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="overlap" name="overlap" 
+                                       value="{{ default_overlap }}" min="0" max="50">
+                                <span class="input-group-text">%</span>
+                            </div>
+                            <div class="form-text text-muted">
+                                Recommended: 10-20% overlap. This helps maintain continuity of context between chunks.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('view_file', filename=filename) }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to File
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-puzzle-piece me-1"></i> Create Chunks
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>How Chunking Works</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>What determines good chunk size?</h6>
+                        <ul>
+                            <li><strong>Short chunks (100-200 tokens):</strong> Best for simple definitions or facts without much context.</li>
+                            <li><strong>Medium chunks (250-500 tokens):</strong> Good balance of context and precision for most content.</li>
+                            <li><strong>Large chunks (500-1000 tokens):</strong> Best for complex topics that need more context to understand.</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Context Preservation</h6>
+                        <p>Each chunk includes a context header with:</p>
+                        <ul>
+                            <li>Document title and source</li>
+                            <li>Section hierarchy (H1 > H2 > H3)</li>
+                            <li>Overlap with adjacent chunks to maintain flow</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
