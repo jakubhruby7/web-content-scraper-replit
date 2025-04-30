@@ -197,15 +197,13 @@ def create_chunks_from_markdown(markdown_text, url=None, target_token_count=400,
                     position = markdown_text.find(chunk_text[:50]) if chunk_text else 0
                     section_context = get_current_section_context(position, headers)
                     
-                    # Create context section
-                    context = f"Context:\n"
-                    context += f"Document: {document_title}\n"
-                    context += f"Source: {domain}\n"
+                    # Create context section - everything on one line
+                    context = f"Context: {document_title}."
                     if section_context:
-                        context += f"Section: {' > '.join(section_context)}\n"
+                        context += f" Section: {' > '.join(section_context)}"
                     
                     # Create content section with an empty line between context and content
-                    formatted_text = f"{context}\nContent:\n{chunk_text}"
+                    formatted_text = f"{context}\n\nContent: {chunk_text}"
                     
                     # Add chunk to our list
                     chunks.append({
@@ -240,15 +238,13 @@ def create_chunks_from_markdown(markdown_text, url=None, target_token_count=400,
                 position = markdown_text.find(chunk_text[:50]) if chunk_text else 0
                 section_context = get_current_section_context(position, headers)
                 
-                # Create context section
-                context = f"Context:\n"
-                context += f"Document: {document_title}\n"
-                context += f"Source: {domain}\n"
+                # Create context section - everything on one line
+                context = f"Context: {document_title}."
                 if section_context:
-                    context += f"Section: {' > '.join(section_context)}\n"
+                    context += f" Section: {' > '.join(section_context)}"
                 
                 # Create content section with an empty line between context and content
-                formatted_text = f"{context}\nContent:\n{chunk_text}"
+                formatted_text = f"{context}\n\nContent: {chunk_text}"
                 
                 logger.debug(f"Created chunk with {current_token_count} tokens")
                 
@@ -283,15 +279,13 @@ def create_chunks_from_markdown(markdown_text, url=None, target_token_count=400,
         position = markdown_text.find(chunk_text[:50]) if chunk_text else 0
         section_context = get_current_section_context(position, headers)
         
-        # Create context section
-        context = f"Context:\n"
-        context += f"Document: {document_title}\n"
-        context += f"Source: {domain}\n"
+        # Create context section - everything on one line
+        context = f"Context: {document_title}."
         if section_context:
-            context += f"Section: {' > '.join(section_context)}\n"
+            context += f" Section: {' > '.join(section_context)}"
         
         # Create content section with an empty line between context and content
-        formatted_text = f"{context}\nContent:\n{chunk_text}"
+        formatted_text = f"{context}\n\nContent: {chunk_text}"
         
         logger.debug(f"Created final chunk with {current_token_count} tokens")
         

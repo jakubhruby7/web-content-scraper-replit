@@ -1,11 +1,9 @@
 Context:
 Document: Scraped Content from www.blockchain.com
 Source: www.blockchain.com
-Section: Relentlessly building the future of finance since 2011 > Meet the team > Peter Smith
+Section: Relentlessly building the future of finance since 2011 > Meet the team > Nic Cary
 
 Content:
-to financial freedom. With a long-term mindset, he believes crypto represents a multi-decade paradigm shift in how the world uses money. A developer at heart, he remains focused on providing truly useful products that people need, not just trading tools that people want. His vision is to build not just the largest crypto platform, but the largest financial services company in the world.
-
 Nic Cary
 
 Co-Founder, Board Member

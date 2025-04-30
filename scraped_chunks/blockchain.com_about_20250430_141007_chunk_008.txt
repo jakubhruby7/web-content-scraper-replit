@@ -1,11 +1,9 @@
 Context:
 Document: Scraped Content from www.blockchain.com
 Source: www.blockchain.com
-Section: Relentlessly building the future of finance since 2011 > Meet the team > Manuel Stotz
+Section: Relentlessly building the future of finance since 2011 > Meet the team > Nicolas Brand
 
 Content:
-the Board of the Sohn Conference Foundation London and created the LSE “Pass The Torch” Scholarship programme for underprivileged students. Nicolas Brand Director
-
 Nicolas Brand is a Partner at Lakestar Capital, leveraging his 20 years of experience in the finance industry to drive investments in European tech companies. Prior to joining Lakestar in 2014, Nicolas served as a Vice President at J.P. Morgan London, where he led mergers and acquisitions for technology and industrial companies, and played a key role in securing debt and equity capital for clients, raising over $25 billion throughout his tenure. This blend of experience in traditional finance and his current focus on European tech positions Nicolas as a valuable asset in identifying and supporting the next generation of European technological innovation.
 Nicolass expertise goes beyond simply understanding the financial side of tech companies. He is deeply invested in the future of finance itself. Nicolas focuses on investments at the intersection of finance, blockchain, and technology, leading Lakestars fintech coverage. He brings a unique perspective, combining a deep understanding of traditional finance – the macroeconomic, regulatory, and geopolitical aspects – with a keen eye for the emerging technologies that are shaping the future of finance. This holistic view allows him to not only identify promising fintech and blockchain startups across Europe`s tech hubs, but also to actively participate in building and nurturing these businesses. By leveraging his experience and forward-looking vision, Nicolas is a key player in driving innovation at the forefront of European finance.
 
@@ -18,3 +16,9 @@ We believe that in a decade the financial system of the internet — that is, co
 $1T+ Transacted
 
 1/3rd Of bitcoin network transactions are via Blockchain.com
+
+37MVerified Users
+
+200+ Countries
+
+2011 Date Founded

@@ -1,12 +1,11 @@
-Context:
-Document: Scraped Content from www.blockchain.com
+Context: Scraped Content from www.blockchain.com
 Source: www.blockchain.com
 
 Content:
 Scraped Content from www.blockchain.com
 
 Source URL: https://www.blockchain.com/en/about
-Date: 2025-04-30 13:59:40
+Date: 2025-04-30 14:10:07
 
 Relentlessly building the future of finance since 2011
 

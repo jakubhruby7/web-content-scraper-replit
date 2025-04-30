@@ -68,7 +68,7 @@
                                                 <strong>Context</strong>
                                             </div>
                                             <div class="card-body bg-light">
-                                                {% set context_part = chunk.content.split('Content:')[0].replace('Context:', '', 1) %}
+                                                {% set context_part = chunk.content.split('Content:')[0].replace('Context:', '', 1).strip() %}
                                                 <pre class="mb-0" style="white-space: pre-wrap;">{{ context_part }}</pre>
                                             </div>
                                         </div>
@@ -77,7 +77,7 @@
                                                 <strong>Content</strong>
                                             </div>
                                             <div class="card-body">
-                                                {% set content_part = chunk.content.split('Content:')[1] %}
+                                                {% set content_part = chunk.content.split('Content:')[1].strip() %}
                                                 <pre class="mb-0" style="white-space: pre-wrap; max-height: 200px; overflow-y: auto;">{{ content_part }}</pre>
                                             </div>
                                         </div>

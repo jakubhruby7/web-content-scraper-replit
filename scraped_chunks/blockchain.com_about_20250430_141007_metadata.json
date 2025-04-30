@@ -1,0 +1,18 @@
+{
+  "source_file": "blockchain.com_about_20250430_141007",
+  "created": "2025-04-30 14:10:16",
+  "num_chunks": 9,
+  "estimated_total_tokens": 2782,
+  "chunk_files": [
+    "blockchain.com_about_20250430_141007_chunk_001.txt",
+    "blockchain.com_about_20250430_141007_chunk_002.txt",
+    "blockchain.com_about_20250430_141007_chunk_003.txt",
+    "blockchain.com_about_20250430_141007_chunk_004.txt",
+    "blockchain.com_about_20250430_141007_chunk_005.txt",
+    "blockchain.com_about_20250430_141007_chunk_006.txt",
+    "blockchain.com_about_20250430_141007_chunk_007.txt",
+    "blockchain.com_about_20250430_141007_chunk_008.txt",
+    "blockchain.com_about_20250430_141007_chunk_009.txt"
+  ],
+  "custom_metadata": {}
+}
