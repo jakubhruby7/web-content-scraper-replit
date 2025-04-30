@@ -1,7 +1,9 @@
+Context:
 Document: Scraped Content from www.blockchain.com
 Source: www.blockchain.com
 Section: Relentlessly building the future of finance since 2011 > Meet the team > Manuel Stotz
 
+Content:
 the Board of the Sohn Conference Foundation London and created the LSE “Pass The Torch” Scholarship programme for underprivileged students. Nicolas Brand Director
 
 Nicolas Brand is a Partner at Lakestar Capital, leveraging his 20 years of experience in the finance industry to drive investments in European tech companies. Prior to joining Lakestar in 2014, Nicolas served as a Vice President at J.P. Morgan London, where he led mergers and acquisitions for technology and industrial companies, and played a key role in securing debt and equity capital for clients, raising over $25 billion throughout his tenure. This blend of experience in traditional finance and his current focus on European tech positions Nicolas as a valuable asset in identifying and supporting the next generation of European technological innovation.

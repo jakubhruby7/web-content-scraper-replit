@@ -1,7 +1,9 @@
+Context:
 Document: Scraped Content from www.blockchain.com
 Source: www.blockchain.com
 Section: Relentlessly building the future of finance since 2011 > About Blockchain.com
 
+Content:
 the financial system of the internet — that is, commerce that happens on the internet — will be the largest financial system in the world. And it will be powered by crypto. 92M Wallets Created $1T+ Transacted 1/3rd Of bitcoin network transactions are via Blockchain.com
 
 37MVerified Users

@@ -136,6 +136,8 @@ def server_error(e):
 @app.route("/create-chunks/<filename>", methods=["GET", "POST"])
 def create_chunks_route(filename):
     """Create chunks from a file for AI embeddings"""
+    logger.debug(f"Create chunks route for {filename}, method: {request.method}")
+    
     if request.method == "GET":
         # Show the form to configure chunking options
         return render_template(
@@ -149,6 +151,7 @@ def create_chunks_route(filename):
     try:
         token_count = int(request.form.get("token_count", 400))
         overlap = int(request.form.get("overlap", 15))
+        logger.debug(f"Creating chunks with token_count={token_count}, overlap={overlap}")
         
         # Get the file content
         content = get_file_content(filename, DATA_DIR)
@@ -160,17 +163,32 @@ def create_chunks_route(filename):
         elif "\nSource URL: " in content:
             url = content.split("\nSource URL: ", 1)[1].split("\n", 1)[0]
         
+        logger.debug(f"Extracted URL: {url}")
+        
         # Create chunks from the content
         chunks = create_chunks_from_markdown(content, url, token_count, overlap)
+        logger.debug(f"Created {len(chunks)} chunks")
         
         # Save the chunks
         result = save_chunks(chunks, filename)
+        logger.debug(f"Save chunks result: {result}")
         
         if result["status"] == "success":
             flash(f"Successfully created {result['num_chunks']} chunks from {filename}", "success")
         else:
             flash(f"Error creating chunks: {result.get('message', 'Unknown error')}", "danger")
+        
+        # Log the chunk files that were created
+        if "chunk_files" in result:
+            for chunk_file in result["chunk_files"]:
+                logger.debug(f"Created chunk file: {chunk_file}")
+        
+        # Get the base filename (without extension) for the chunks view
+        base_filename = filename
+        if base_filename.endswith('.txt'):
+            base_filename = base_filename[:-4]
             
+        logger.debug(f"Redirecting to view_chunks with filename={filename}, base_filename={base_filename}")
         return redirect(url_for("view_chunks", filename=filename))
         
     except Exception as e:
@@ -187,17 +205,26 @@ def list_chunks():
 @app.route("/chunks/<filename>")
 def view_chunks(filename):
     """View chunks for a file"""
+    logger.debug(f"Viewing chunks for file: {filename}")
+    
     # Remove .txt extension if present
     base_filename = filename
     if base_filename.endswith('.txt'):
         base_filename = base_filename[:-4]
     
+    logger.debug(f"Base filename: {base_filename}")
+    
     # Get chunks for the file
     chunks_data = get_chunks_for_file(base_filename)
+    logger.debug(f"Chunks data status: {chunks_data.get('status')}")
     
     if chunks_data["status"] == "error":
-        flash(chunks_data["message"], "warning")
+        error_msg = chunks_data.get("message", "Unknown error")
+        logger.error(f"Error viewing chunks: {error_msg}")
+        flash(f"Error viewing chunks: {error_msg}", "warning")
         return redirect(url_for("view_file", filename=filename))
+    
+    logger.debug(f"Found {chunks_data.get('num_chunks', 0)} chunks")
     
     return render_template(
         "view_chunks.html", 

@@ -1,7 +1,9 @@
+Context:
 Document: Scraped Content from www.blockchain.com
 Source: www.blockchain.com
 Section: Relentlessly building the future of finance since 2011 > Meet the team > Jim Messina
 
+Content:
 serves on the boards of Blockchain.com, Fortera, Vectra.ai, LanzaTech, the United States Soccer Foundation, and the Montana Land Reliance. Joseph Otting Director
 
 Joseph has served in the highest levels of the U.S. government. From 2017 to 2020, he was chief officer of the primary federal banking regulator, Comptroller of the Currency (OCC), where he supervised nearly 1,400 national banks, federal savings associations, and federal branches and agencies of foreign banks operating in the U.S. While at the OCC, his remit was to ensure that national banks and federal savings associations have safe and sound operations, provide fair access to financial services, treat customers fairly, and comply with applicable laws and regulations.

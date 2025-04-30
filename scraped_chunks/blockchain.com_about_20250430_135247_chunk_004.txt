@@ -1,7 +1,9 @@
+Context:
 Document: Scraped Content from www.blockchain.com
 Source: www.blockchain.com
 Section: Relentlessly building the future of finance since 2011 > Meet the team > Nic Cary
 
+Content:
 in 2017 by his alma mater, the University of Puget Sound. A proven leader, investor, public speaker, and brand ambassador, Nic focuses on designing performant cultures that persevere in adverse markets. Tom Horton Lead Independent Director
 
 In addition to Blockchain.com, Tom Horton currently serves as the Lead Independent Director of Walmart, the world’s largest company by revenue and employees, and in the same role on the board of General Electric. Horton is also a partner at Global Infrastructure Partners, a leading independent global infrastructure investor. 

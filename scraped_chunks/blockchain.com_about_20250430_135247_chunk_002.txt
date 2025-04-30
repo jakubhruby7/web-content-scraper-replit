@@ -1,6 +1,8 @@
+Context:
 Document: Scraped Content from www.blockchain.com
 Source: www.blockchain.com
 
+Content:
 and startups. Peter Smith Chief Executive Officer and Co-Founder
 
 Peter is CEO and co-founder of Blockchain.com, one of the world’s largest and most popular crypto platforms, serving tens of millions of consumers and thousands of institutions since 2011. Evolving from early Bitcoiner to developer to CEO of a multinational company, Peter has worked tirelessly to accelerate crypto adoption and build a financial system for the internet. 

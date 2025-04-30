@@ -322,30 +322,60 @@ def get_chunks_for_file(base_filename):
     Returns:
         dict: Information about the chunks
     """
+    # Log the original filename
+    logger.debug(f"Getting chunks for file: {base_filename}")
+    
     # Remove extension if present
     if "." in base_filename:
         base_filename = base_filename.rsplit('.', 1)[0]
     
+    logger.debug(f"After removing extension: {base_filename}")
+    
+    # First check if we have the metadata file
     metadata_filename = f"{base_filename}_metadata.json"
     metadata_path = os.path.join(CHUNKS_DIR, metadata_filename)
     
+    logger.debug(f"Looking for metadata file: {metadata_path}")
+    
     if not os.path.exists(metadata_path):
-        return {"status": "error", "message": f"No chunks found for {base_filename}"}
+        # Try listing all metadata files and look for a match
+        all_metadata_files = [f for f in os.listdir(CHUNKS_DIR) if f.endswith('_metadata.json')]
+        logger.debug(f"All metadata files: {all_metadata_files}")
+        
+        # Check for any metadata file that starts with the same name
+        matching_files = [f for f in all_metadata_files if f.startswith(base_filename)]
+        logger.debug(f"Matching metadata files: {matching_files}")
+        
+        if matching_files:
+            metadata_filename = matching_files[0]
+            metadata_path = os.path.join(CHUNKS_DIR, metadata_filename)
+            base_filename = metadata_filename.rsplit('_metadata.json', 1)[0]
+            logger.debug(f"Found matching metadata file: {metadata_filename}, new base_filename: {base_filename}")
+        else:
+            return {"status": "error", "message": f"No chunks found for {base_filename}"}
     
     try:
         with open(metadata_path, 'r', encoding='utf-8') as f:
             metadata = json.load(f)
         
+        logger.debug(f"Loaded metadata: {metadata}")
+        
         # Get content of each chunk
         chunks = []
         for chunk_file in metadata.get('chunk_files', []):
             chunk_path = os.path.join(CHUNKS_DIR, chunk_file)
+            logger.debug(f"Checking chunk file: {chunk_path}")
+            
             if os.path.exists(chunk_path):
                 with open(chunk_path, 'r', encoding='utf-8') as f:
                     chunks.append({
                         "filename": chunk_file,
                         "content": f.read()
                     })
+            else:
+                logger.warning(f"Chunk file not found: {chunk_path}")
+        
+        logger.debug(f"Found {len(chunks)} chunks")
         
         return {
             "status": "success",
