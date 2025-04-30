@@ -25,6 +25,9 @@
                     <a href="{{ url_for('download_file', filename=filename) }}" class="btn btn-sm btn-success">
                         <i class="fas fa-download me-1"></i> Download
                     </a>
+                    <a href="{{ url_for('create_chunks_route', filename=filename) }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-puzzle-piece me-1"></i> Create AI Chunks
+                    </a>
                     <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete('{{ filename }}')">
                         <i class="fas fa-trash me-1"></i> Delete
                     </button>
