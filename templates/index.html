@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}Web Scraper for AI Embeddings{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-spider me-2"></i>Web Scraper
+                </h5>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="scrapingTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="single-tab" data-bs-toggle="tab" data-bs-target="#single" type="button" role="tab">
+                            <i class="fas fa-link me-1"></i> Single URL
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="bulk-tab" data-bs-toggle="tab" data-bs-target="#bulk" type="button" role="tab">
+                            <i class="fas fa-list me-1"></i> Multiple URLs
+                        </button>
+                    </li>
+                </ul>
+                <div class="tab-content p-3" id="scrapingTabsContent">
+                    <!-- Single URL Form -->
+                    <div class="tab-pane fade show active" id="single" role="tabpanel">
+                        <form action="{{ url_for('scrape') }}" method="POST">
+                            <div class="mb-3">
+                                <label for="url" class="form-label">Website URL</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                                    <input type="text" class="form-control" id="url" name="url" placeholder="Enter URL to scrape (e.g., https://example.com)" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="scrapeBtn">
+                                <i class="fas fa-spider me-1"></i> Scrape Website
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Bulk URLs Form -->
+                    <div class="tab-pane fade" id="bulk" role="tabpanel">
+                        <form action="{{ url_for('scrape_bulk') }}" method="POST">
+                            <div class="mb-3">
+                                <label for="urls" class="form-label">Website URLs (one per line)</label>
+                                <textarea class="form-control" id="urls" name="urls" rows="5" placeholder="Enter URLs to scrape (one per line, e.g., https://example.com)" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="scrapeBulkBtn">
+                                <i class="fas fa-spider me-1"></i> Scrape Websites
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-file-alt me-2"></i>Scraped Files
+                </h5>
+                <span class="badge bg-primary" id="fileCount">{{ files|length }} file(s)</span>
+            </div>
+            <div class="card-body">
+                {% if files %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Filename</th>
+                                    <th>Source URL</th>
+                                    <th>Size</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for file in files %}
+                                <tr>
+                                    <td>{{ file.filename }}</td>
+                                    <td class="text-truncate" style="max-width: 200px;">
+                                        <a href="{{ file.url }}" target="_blank" title="{{ file.url }}">
+                                            {{ file.url }}
+                                        </a>
+                                    </td>
+                                    <td>{{ file.size_kb }} KB</td>
+                                    <td>{{ file.modified }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ url_for('view_file', filename=file.filename) }}" class="btn btn-info">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                            <a href="{{ url_for('download_file', filename=file.filename) }}" class="btn btn-success">
+                                                <i class="fas fa-download"></i> Download
+                                            </a>
+                                            <button type="button" class="btn btn-danger" 
+                                                    onclick="confirmDelete('{{ file.filename }}')">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> No files have been scraped yet. Use the form above to scrape websites.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this file? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
