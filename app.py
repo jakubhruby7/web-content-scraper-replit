@@ -1,6 +1,8 @@
 import os
 import logging
 import datetime
+import markdown
+from markupsafe import Markup
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_from_directory, session
 from scraper import scrape_url, scrape_multiple_urls
 from file_manager import save_text_to_file, get_all_files, get_file_content, delete_file
@@ -82,8 +84,22 @@ def files():
 def view_file(filename):
     """View a specific file"""
     content = get_file_content(filename, DATA_DIR)
-    original_url = content.split("\nSource URL: ", 1)[1].split("\n", 1)[0] if "\nSource URL: " in content else "Unknown"
-    return render_template("view_file.html", filename=filename, content=content, original_url=original_url)
+    
+    # Extract source URL from markdown or plain text format
+    if "**Source URL:**" in content:
+        original_url = content.split("**Source URL:**", 1)[1].split("\n", 1)[0].strip()
+    elif "\nSource URL: " in content:
+        original_url = content.split("\nSource URL: ", 1)[1].split("\n", 1)[0]
+    else:
+        original_url = "Unknown"
+    
+    # Convert markdown to HTML if needed
+    html_content = Markup(markdown.markdown(content, extensions=['tables', 'nl2br']))
+    
+    return render_template("view_file.html", filename=filename, 
+                          content=content, 
+                          html_content=html_content,
+                          original_url=original_url)
 
 @app.route("/download/<filename>")
 def download_file(filename):
