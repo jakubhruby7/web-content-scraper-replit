@@ -199,9 +199,29 @@ def save_chunks(chunks, base_filename, metadata=None):
     if "." in base_filename:
         base_filename = base_filename.rsplit('.', 1)[0]
     
-    # Store metadata in a JSON file
+    logger.debug(f"Saving chunks for base_filename: {base_filename}")
+    
+    # Delete any existing chunks with this base filename first to avoid conflicts
+    existing_files = os.listdir(CHUNKS_DIR)
+    prefix = f"{base_filename}_chunk_"
+    for file in existing_files:
+        if file.startswith(prefix) and file.endswith(".txt"):
+            old_path = os.path.join(CHUNKS_DIR, file)
+            try:
+                os.remove(old_path)
+                logger.debug(f"Removed old chunk file: {file}")
+            except Exception as e:
+                logger.error(f"Error removing old chunk file {file}: {str(e)}")
+    
+    # Also remove existing metadata file
     metadata_filename = f"{base_filename}_metadata.json"
     metadata_path = os.path.join(CHUNKS_DIR, metadata_filename)
+    if os.path.exists(metadata_path):
+        try:
+            os.remove(metadata_path)
+            logger.debug(f"Removed old metadata file: {metadata_filename}")
+        except Exception as e:
+            logger.error(f"Error removing old metadata file {metadata_filename}: {str(e)}")
     
     chunk_files = []
     total_tokens = 0
@@ -337,28 +357,64 @@ def get_chunks_for_file(base_filename):
     
     logger.debug(f"Looking for metadata file: {metadata_path}")
     
+    # If the direct metadata file doesn't exist, search for alternative matches
     if not os.path.exists(metadata_path):
-        # Try listing all metadata files and look for a match
         all_metadata_files = [f for f in os.listdir(CHUNKS_DIR) if f.endswith('_metadata.json')]
         logger.debug(f"All metadata files: {all_metadata_files}")
         
-        # Check for any metadata file that starts with the same name
-        matching_files = [f for f in all_metadata_files if f.startswith(base_filename)]
-        logger.debug(f"Matching metadata files: {matching_files}")
+        # Try multiple matching strategies
+        exact_match = None
+        url_date_match = None
+        partial_match = None
         
-        if matching_files:
-            metadata_filename = matching_files[0]
+        # Extract components from the filename (e.g., domain, date, time)
+        filename_parts = base_filename.split('_')
+        
+        for metadata_file in all_metadata_files:
+            # Check for exact match
+            if metadata_file == metadata_filename:
+                exact_match = metadata_file
+                break
+                
+            # Check for match with same URL and date (common format: domain_date_time)
+            if len(filename_parts) >= 2:
+                # If our filename has domain_date_time format
+                domain = filename_parts[0]
+                if metadata_file.startswith(domain) and metadata_file not in [exact_match, url_date_match, partial_match]:
+                    # This is at least a partial match
+                    partial_match = metadata_file
+                
+                if len(filename_parts) >= 3:
+                    # If we have both domain and date
+                    date_part = filename_parts[1]
+                    if metadata_file.startswith(f"{domain}_{date_part}") and metadata_file not in [exact_match, url_date_match]:
+                        url_date_match = metadata_file
+        
+        # Use the best match available
+        best_match = exact_match or url_date_match or partial_match
+        
+        if best_match:
+            metadata_filename = best_match
             metadata_path = os.path.join(CHUNKS_DIR, metadata_filename)
             base_filename = metadata_filename.rsplit('_metadata.json', 1)[0]
-            logger.debug(f"Found matching metadata file: {metadata_filename}, new base_filename: {base_filename}")
+            logger.debug(f"Found best matching metadata file: {metadata_filename}, new base_filename: {base_filename}")
         else:
-            return {"status": "error", "message": f"No chunks found for {base_filename}"}
+            # Last resort: just take the most recent metadata file
+            if all_metadata_files:
+                # Sort by creation time, newest first
+                all_metadata_files.sort(key=lambda f: os.path.getctime(os.path.join(CHUNKS_DIR, f)), reverse=True)
+                metadata_filename = all_metadata_files[0]
+                metadata_path = os.path.join(CHUNKS_DIR, metadata_filename)
+                base_filename = metadata_filename.rsplit('_metadata.json', 1)[0]
+                logger.debug(f"Using most recent metadata file: {metadata_filename}")
+            else:
+                return {"status": "error", "message": f"No chunks found for {base_filename}"}
     
     try:
         with open(metadata_path, 'r', encoding='utf-8') as f:
             metadata = json.load(f)
         
-        logger.debug(f"Loaded metadata: {metadata}")
+        logger.debug(f"Loaded metadata for {base_filename}")
         
         # Get content of each chunk
         chunks = []
@@ -376,6 +432,9 @@ def get_chunks_for_file(base_filename):
                 logger.warning(f"Chunk file not found: {chunk_path}")
         
         logger.debug(f"Found {len(chunks)} chunks")
+        
+        if len(chunks) == 0:
+            return {"status": "error", "message": f"No chunk files found for {base_filename}. They may have been deleted."}
         
         return {
             "status": "success",

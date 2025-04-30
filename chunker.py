@@ -115,9 +115,13 @@ def create_chunks_from_markdown(markdown_text, url=None, target_token_count=400,
     Returns:
         list: List of chunk dictionaries with text and metadata
     """
+    logger.debug(f"Creating chunks with target_token_count={target_token_count}, overlap_percentage={overlap_percentage}")
+    
     # Get document title and source info
     document_title = get_document_title(markdown_text)
     domain = urlparse(url).netloc if url else "Unknown source"
+    
+    logger.debug(f"Document title: {document_title}, domain: {domain}")
     
     # Extract headers for context
     headers = get_section_headers(markdown_text)
@@ -128,12 +132,12 @@ def create_chunks_from_markdown(markdown_text, url=None, target_token_count=400,
     
     # Get all paragraph and list elements
     elements = soup.find_all(['p', 'ul', 'ol', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'table'])
+    logger.debug(f"Found {len(elements)} elements to chunk")
     
     chunks = []
     current_chunk = ""
     current_token_count = 0
-    overlap_text = ""
-    overlap_token_count = 0
+    current_elements = []  # Store complete elements for the current chunk
     
     for element in elements:
         # Extract and clean text from the element
@@ -148,63 +152,135 @@ def create_chunks_from_markdown(markdown_text, url=None, target_token_count=400,
             continue
         
         element_token_count = estimate_token_count(element_text)
+        logger.debug(f"Element: {element.name}, tokens: {element_token_count}, text: {element_text[:50]}...")
         
-        # If adding this element would exceed our target, create a new chunk
-        if current_token_count > 0 and current_token_count + element_token_count > target_token_count:
-            # Get context for this position
-            position = markdown_text.find(current_chunk[:50])  # Find approx. position
-            section_context = get_current_section_context(position, headers)
+        # Check if this single element exceeds the target token count
+        if element_token_count > target_token_count * 1.5:
+            logger.debug(f"Large element found: {element_token_count} tokens, will split carefully")
             
-            # Create context section
-            context = f"Context:\n"
-            context += f"Document: {document_title}\n"
-            context += f"Source: {domain}\n"
-            if section_context:
-                context += f"Section: {' > '.join(section_context)}\n"
+            # For very large elements, we'll need to split them but still respect sentence boundaries
+            # This is typically for very large paragraphs
+            sentences = re.split(r'(?<=[.!?])\s+', element_text)
+            sentence_groups = []
+            current_group = []
+            current_group_tokens = 0
             
-            # Create content section with an empty line between context and content
-            formatted_text = f"{context}\nContent:\n{current_chunk}"
+            for sentence in sentences:
+                sentence_tokens = estimate_token_count(sentence)
+                
+                if current_group_tokens + sentence_tokens > target_token_count and current_group:
+                    sentence_groups.append(" ".join(current_group))
+                    current_group = [sentence]
+                    current_group_tokens = sentence_tokens
+                else:
+                    current_group.append(sentence)
+                    current_group_tokens += sentence_tokens
             
-            # Add chunk to our list
-            chunks.append({
-                "text": formatted_text,
-                "metadata": {
-                    "document": document_title,
-                    "source": domain,
-                    "section": " > ".join(section_context) if section_context else None,
-                }
-            })
+            # Add the last group if it's not empty
+            if current_group:
+                sentence_groups.append(" ".join(current_group))
             
-            # Start a new chunk with overlap from the previous one
-            overlap_tokens = int(current_token_count * (overlap_percentage / 100))
+            # Process each sentence group as if it were a separate element
+            for group in sentence_groups:
+                group_tokens = estimate_token_count(group)
+                
+                # If adding this group would exceed our target, create a new chunk
+                if current_token_count > 0 and current_token_count + group_tokens > target_token_count:
+                    # Create a new chunk with the current elements
+                    chunk_text = ""
+                    for el_text in current_elements:
+                        if chunk_text and not chunk_text.endswith("\n"):
+                            chunk_text += "\n\n"
+                        chunk_text += el_text
+                    
+                    # Get context for this position
+                    position = markdown_text.find(chunk_text[:50]) if chunk_text else 0
+                    section_context = get_current_section_context(position, headers)
+                    
+                    # Create context section
+                    context = f"Context:\n"
+                    context += f"Document: {document_title}\n"
+                    context += f"Source: {domain}\n"
+                    if section_context:
+                        context += f"Section: {' > '.join(section_context)}\n"
+                    
+                    # Create content section with an empty line between context and content
+                    formatted_text = f"{context}\nContent:\n{chunk_text}"
+                    
+                    # Add chunk to our list
+                    chunks.append({
+                        "text": formatted_text,
+                        "metadata": {
+                            "document": document_title,
+                            "source": domain,
+                            "section": " > ".join(section_context) if section_context else None,
+                        }
+                    })
+                    
+                    # Calculate overlap (we'll use sentence overlap instead of word overlap)
+                    # For now, just reset since we're respecting paragraph/element boundaries
+                    current_chunk = ""
+                    current_token_count = 0
+                    current_elements = []
+                
+                # Add the group to the current chunk
+                current_elements.append(group)
+                current_token_count += group_tokens
+        else:
+            # For normal-sized elements, check if adding it would exceed the target
+            if current_token_count > 0 and current_token_count + element_token_count > target_token_count:
+                # Create a new chunk with the current elements
+                chunk_text = ""
+                for el_text in current_elements:
+                    if chunk_text and not chunk_text.endswith("\n"):
+                        chunk_text += "\n\n"
+                    chunk_text += el_text
+                
+                # Get context for this position
+                position = markdown_text.find(chunk_text[:50]) if chunk_text else 0
+                section_context = get_current_section_context(position, headers)
+                
+                # Create context section
+                context = f"Context:\n"
+                context += f"Document: {document_title}\n"
+                context += f"Source: {domain}\n"
+                if section_context:
+                    context += f"Section: {' > '.join(section_context)}\n"
+                
+                # Create content section with an empty line between context and content
+                formatted_text = f"{context}\nContent:\n{chunk_text}"
+                
+                logger.debug(f"Created chunk with {current_token_count} tokens")
+                
+                # Add chunk to our list
+                chunks.append({
+                    "text": formatted_text,
+                    "metadata": {
+                        "document": document_title,
+                        "source": domain,
+                        "section": " > ".join(section_context) if section_context else None,
+                    }
+                })
+                
+                # Reset for new chunk (no overlap for now, to maintain element boundaries)
+                current_chunk = ""
+                current_token_count = 0
+                current_elements = []
             
-            # If the overlap text is too short, use the end of the current chunk
-            if overlap_token_count < overlap_tokens:
-                words = current_chunk.split()
-                overlap_word_count = int(len(words) * (overlap_percentage / 100))
-                overlap_text = " ".join(words[-overlap_word_count:])
-                overlap_token_count = estimate_token_count(overlap_text)
-            
-            current_chunk = overlap_text
-            current_token_count = overlap_token_count
-        
-        # Add the element to the current chunk
-        if current_chunk and not current_chunk.endswith("\n"):
-            current_chunk += "\n\n"
-        
-        current_chunk += element_text
-        current_token_count += element_token_count
-        
-        # Update overlap text (for the next chunk)
-        words = element_text.split()
-        overlap_word_count = int(len(words) * (overlap_percentage / 100))
-        overlap_text = " ".join(words[-overlap_word_count:])
-        overlap_token_count = estimate_token_count(overlap_text)
+            # Add the element to the current chunk
+            current_elements.append(element_text)
+            current_token_count += element_token_count
     
     # Don't forget the last chunk
-    if current_chunk:
+    if current_elements:
+        chunk_text = ""
+        for el_text in current_elements:
+            if chunk_text and not chunk_text.endswith("\n"):
+                chunk_text += "\n\n"
+            chunk_text += el_text
+        
         # Get context for this position
-        position = markdown_text.find(current_chunk[:50])  # Find approx. position
+        position = markdown_text.find(chunk_text[:50]) if chunk_text else 0
         section_context = get_current_section_context(position, headers)
         
         # Create context section
@@ -215,7 +291,9 @@ def create_chunks_from_markdown(markdown_text, url=None, target_token_count=400,
             context += f"Section: {' > '.join(section_context)}\n"
         
         # Create content section with an empty line between context and content
-        formatted_text = f"{context}\nContent:\n{current_chunk}"
+        formatted_text = f"{context}\nContent:\n{chunk_text}"
+        
+        logger.debug(f"Created final chunk with {current_token_count} tokens")
         
         # Add chunk to our list
         chunks.append({
